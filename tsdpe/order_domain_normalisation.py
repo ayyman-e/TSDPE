@@ -1,3 +1,38 @@
+"""
+OrderDomainNormalisation Class
+==============================
+
+This class implements functionalities for order domain normalization of time-series data. 
+The class provides methods to fit model parameters and to transform data into the order domain.
+
+Class
+-----
+- OrderDomainNormalisation: The main class for implementing order domain normalisation.
+
+Example
+-------
+.. code-block:: python
+
+    from TSDPE.OrderDomainNormalisation import OrderDomainNormalisation
+    
+    odn = OrderDomainNormalisation()
+    odn.fit_parameters(fs=1000, bandwidth_orders=5)
+    order_axis, transformed_data = odn.transform(data, fs=1000, fo=50)
+
+Dependencies
+------------
+- NumPy
+- SciPy
+
+Authors
+-------
+Ayman Elhalwagy
+
+License
+-------
+MIT
+"""
+
 import numpy as np
 from scipy.signal import welch, decimate
 from scipy.fft import rfft, rfftfreq

@@ -1,3 +1,38 @@
+"""
+dataset_fusion Module
+=====================
+
+This module provides utilities for fusing multiple datasets into a single dataset. 
+This is especially useful when you have data collected at different sampling frequencies and wish to combine them into a standardized, uniform dataset.
+
+Functions
+---------
+- dataset_fusion(dataset_list, sampling_frequencies, no_periods_per_slice): Create a fused dataset from multiple datasets with varying sampling frequencies.
+
+Example
+-------
+.. code-block:: python
+
+    from TSDPE.dataset_fusion import dataset_fusion
+    
+    fused_data = dataset_fusion([data1, data2], [fs1, fs2], 5)
+
+Dependencies
+------------
+- NumPy
+- scikit-learn
+
+Authors
+-------
+Ayman Elhalwagy
+
+License
+-------
+MIT
+"""
+
+
+from itertools import chain, zip_longest
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from .helpers import resample_signals, period_batching
