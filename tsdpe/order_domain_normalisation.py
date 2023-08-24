@@ -36,12 +36,19 @@ MIT
 import numpy as np
 from scipy.signal import welch, decimate
 from scipy.fft import rfft, rfftfreq
-from scipy.interpolate import interp1d, PchipInterpolator, Akima1DInterpolator, CubicSpline
+from scipy.interpolate import (
+    interp1d,
+    PchipInterpolator,
+    Akima1DInterpolator,
+    CubicSpline,
+)
 
-class OrderDomainNormalisation():
+
+class OrderDomainNormalisation:
     """
     Class that implements order domain normalisation.
     """
+
     def __init__(self):
         """
         Initialize order_domain_normalisation.
@@ -62,8 +69,7 @@ class OrderDomainNormalisation():
         self.fft_size = int(2 ** np.ceil(np.log2(self.fitted_fs)))
         self.order_axis = np.linspace(0, self.bandwidth_orders, self.fft_size // 2 + 1)
 
-
-    def transform(self, data, fs, fo, method='linear', psd=False):
+    def transform(self, data, fs, fo, method="linear", psd=False):
         """
         Transform the data using the fitted model.
 
@@ -73,17 +79,17 @@ class OrderDomainNormalisation():
             fo (float): Fundamental frequency.
             psd (bool): If True, return the power spectral density.
         """
-        if method == 'linear':
+        if method == "linear":
             interp_func = interp1d
-        elif method == 'cubic_spline':
+        elif method == "cubic_spline":
             interp_func = CubicSpline
-        elif method == 'nearest':
-            interp_func = lambda x, y: interp1d(x, y, kind='nearest')
-        elif method == 'polynomial':
-            interp_func = lambda x, y: interp1d(x, y, kind='quadratic')
-        elif method == 'pchip':
+        elif method == "nearest":
+            interp_func = lambda x, y: interp1d(x, y, kind="nearest")
+        elif method == "polynomial":
+            interp_func = lambda x, y: interp1d(x, y, kind="quadratic")
+        elif method == "pchip":
             interp_func = PchipInterpolator
-        elif method == 'akima':
+        elif method == "akima":
             interp_func = Akima1DInterpolator
         # Calculate orders
         # orders_fft = self.fft_freq / fo
@@ -100,48 +106,63 @@ class OrderDomainNormalisation():
             channel_data = data[:, channel]
 
             if fs != self.fitted_fs:
-                old_time = np.arange(0, len(channel_data) / fs, 1/fs)
-                new_time = np.arange(0, len(channel_data) / fs, 1/self.fitted_fs)
+                old_time = np.arange(0, len(channel_data) / fs, 1 / fs)
+                new_time = np.arange(0, len(channel_data) / fs, 1 / self.fitted_fs)
 
                 if fs < self.fitted_fs:
-                    print("WARNING: The current sampling rate is lower than the fitted sampling rate. Upsampling may cause inaccuracies and artefacts.") if channel == 0 else None
+                    print(
+                        "WARNING: The current sampling rate is lower than the fitted sampling rate. Upsampling may cause inaccuracies and artefacts."
+                    ) if channel == 0 else None
                     cs = CubicSpline(old_time, channel_data)
-                    channel_data = cs(new_time)                   
+                    channel_data = cs(new_time)
                 elif fs > self.fitted_fs:
-                    print("The current sampling rate is higher than the fitted sampling rate. Resampling signal.") if channel == 0 else None
+                    print(
+                        "The current sampling rate is higher than the fitted sampling rate. Resampling signal."
+                    ) if channel == 0 else None
                     # Downsample the signal to match the fitted sampling frequency
                     decimation_factor = int(fs / self.fitted_fs)
-                    
+
                     # Split the decimation into multiple stages if the decimation factor is too large
                     max_decimation_factor = 13
                     while decimation_factor > max_decimation_factor:
                         channel_data = decimate(channel_data, max_decimation_factor)
                         decimation_factor = decimation_factor // max_decimation_factor
                     channel_data = decimate(channel_data, decimation_factor)
-                    
+
             if len(channel_data) < self.fft_size:
                 # Zero-pad the signal to match the FFT size
-                channel_data = np.pad(channel_data, (0, self.fft_size - len(channel_data)), mode='constant')
+                channel_data = np.pad(
+                    channel_data,
+                    (0, self.fft_size - len(channel_data)),
+                    mode="constant",
+                )
 
             if psd:
-                _, channel_result = welch(channel_data, fs=self.fitted_fs, nperseg=self.fft_size*2, noverlap=0)
-                channel_result = channel_result[:len(self.order_axis)]
+                _, channel_result = welch(
+                    channel_data,
+                    fs=self.fitted_fs,
+                    nperseg=self.fft_size * 2,
+                    noverlap=0,
+                )
+                channel_result = channel_result[: len(self.order_axis)]
             else:
-                yf = rfft(channel_data, n=self.fft_size*2)
-                channel_result = 2.0/self.fft_size*2 * np.abs(yf)
-                channel_result = channel_result[:len(self.order_axis)]
+                yf = rfft(channel_data, n=self.fft_size * 2)
+                channel_result = 2.0 / self.fft_size * 2 * np.abs(yf)
+                channel_result = channel_result[: len(self.order_axis)]
 
             # Normalize by fundamental frequency to get orders
-            freq_bins = rfftfreq(self.fft_size*2, 1 / self.fitted_fs)[:self.fft_size // 2 + 1]
+            freq_bins = rfftfreq(self.fft_size * 2, 1 / self.fitted_fs)[
+                : self.fft_size // 2 + 1
+            ]
             # plt.figure()
             # plt.semilogy(freq_bins,channel_result)
             # plt.show()
             orders = freq_bins / fo
-            
-            
 
             # Interpolate to align with reference order axis
-            order_interp_func = interp_func(orders, channel_result,fill_value='extrapolate')
+            order_interp_func = interp_func(
+                orders, channel_result, fill_value="extrapolate"
+            )
             channel_result_interpolated = order_interp_func(self.order_axis)
 
             results.append(channel_result_interpolated)

@@ -13,18 +13,29 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Set up Python 3.x
+
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.9'
+
     - name: Install pipenv
       run: pip install pipenv
+
     - name: Install dependencies
       run: pipenv sync
+
+    - name: Install Black
+      run: pipenv install --dev black
+
+    - name: Check code formatting with Black
+      run: pipenv run black --check .
+
     - name: Lint with pylint
-      run: pipenv run pylint tsdpe/  # replace with your package name
+      run: pipenv run pylint tsdpe/ 
+
     - name: Run tests
-      run: pipenv run pytest tests/  # replace with your tests directory
+      run: pipenv run pytest tests/  
 
   publish:
     runs-on: ubuntu-latest
