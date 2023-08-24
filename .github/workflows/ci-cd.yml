@@ -24,7 +24,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint TSDPE/  # replace with your package name
+        pylint tsdpe/  # replace with your package name
     - name: Run tests
       run: |
         pip install pytest
@@ -59,8 +59,8 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./dist/TSDPE.tar.gz  # replace with your package name
-        asset_name: TSDPE.tar.gz  # replace with your package name
+        asset_path: ./dist/tsdpe.tar.gz  # replace with your package name
+        asset_name: tsdpe.tar.gz  # replace with your package name
         asset_content_type: application/gzip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
