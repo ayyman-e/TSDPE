@@ -16,6 +16,7 @@ wheeel = "==0.0.2"
 pytest = "==7.2.2"
 numpy = "==1.25.2"
 black = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.9"
