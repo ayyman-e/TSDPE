@@ -19,23 +19,14 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Install pipenv
-      run: pip install pipenv
+    - name: Set up environment
+      run: |
+        pip install --upgrade pip
+        pip install pipenv
+        pipenv sync --dev
 
-    - name: Install dependencies
-      run: pipenv sync --dev
-
-    - name: List installed packages
-      run: pipenv run pip freeze
-
-    - name: Install Black
-      run: pipenv install --dev black
-
-    - name: Check code formatting with Black
+    - name: Black formatter
       run: pipenv run black --check .
-
-    - name: Install Pylint
-      run: pipenv install --dev pylint
 
     - name: Lint with pylint
       run: pipenv run pylint tsdpe/ 
