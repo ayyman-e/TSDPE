@@ -17,18 +17,14 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+    - name: Install pipenv
+      run: pip install pipenv
     - name: Install dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -r requirements.txt
+      run: pipenv sync
     - name: Lint with pylint
-      run: |
-        pip install pylint
-        pylint tsdpe/  # replace with your package name
+      run: pipenv run pylint tsdpe/  # replace with your package name
     - name: Run tests
-      run: |
-        pip install pytest
-        pytest tests/  # replace with your tests directory
+      run: pipenv run pytest tests/  # replace with your tests directory
 
   publish:
     runs-on: ubuntu-latest
